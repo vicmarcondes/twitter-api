@@ -16,11 +16,28 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     let userExists = await this.findOneByUsername(createUserDto.username);
 
-    if(userExists) return "Username already exists.";
+    if(userExists) {
+      return {
+        message: "User already exists!",
+        error: true
+      }
+    }
 
     createUserDto.password = await bcrypt.hash(createUserDto.password, saltRounds);
 
-    return await this.userRepository.save(createUserDto);
+    let response = await this.userRepository.save(createUserDto);
+
+    if(response.id) {
+      return {
+        message: "Account created successfully!",
+        error: false
+      }
+    } else {
+      return {
+        message: "Error on create an account",
+        error: true
+      }
+    }
   }
 
   async login(userPayload: any) {
