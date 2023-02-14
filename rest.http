@@ -1,0 +1,6 @@
+POST http://localhost:3000/users
+{
+  "username": "vicmorenoz",
+  "fullname": "Victor Moreno",
+  "password": 123456
+}
