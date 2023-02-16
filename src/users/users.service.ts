@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
 import * as bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+let jwt = require('jsonwebtoken');
 
 const saltRounds = 9;
 
@@ -51,8 +51,8 @@ export class UsersService {
     if(!isMatch) {
       throw new HttpException("Login error", HttpStatus.BAD_REQUEST);
     } else {
-
       const payload = { username: user.username, id: user.id, fullname: user.fullname };
+      
       return {
         error: false,
         access_token: jwt.sign(payload, process.env.SECRET, {expiresIn: '1h'})
