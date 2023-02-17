@@ -18,7 +18,6 @@ export class PostsService {
 
   async create(createPostDto: CreatePostDto) {
     let user: User = await this.userService.findOneByUsername(createPostDto.username);
-    console.log("🚀 ~ file: posts.service.ts:21 ~ PostsService ~ create ~ user", user)
 
     if(!user) {
       return {
@@ -30,17 +29,17 @@ export class PostsService {
         text: createPostDto.text,
         user
       }
-      
-      console.log("🚀 ~ file: posts.service.ts:32 ~ PostsService ~ create ~ post", post)
-      
+          
       let response = await this.postRepository.save(post);
       return response;
     }
 
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll() {
+     let posts: any = await this.postRepository.find({relations: ["user"]});
+     posts.forEach(post => delete post.user.password);
+     return posts;   
   }
 
   findOne(id: number) {
