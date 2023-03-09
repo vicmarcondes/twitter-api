@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LikesService } from 'src/likes/likes.service';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
@@ -13,7 +14,9 @@ export class PostsService {
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
-    private userService: UsersService
+    @Inject(forwardRef(() => LikesService))
+    private likeService: LikesService,
+    private userService: UsersService,
   ) {}
 
   async create(createPostDto: CreatePostDto) {
@@ -31,15 +34,27 @@ export class PostsService {
       }
           
       let response = await this.postRepository.save(post);
-      return response;
+      if(response.id) {
+        return {
+          error: false,
+          message: "Twitter created successfully!"
+        } 
+      } else {
+        return response;
+      }
     }
 
   }
 
   async findAll() {
      let posts: any = await this.postRepository.find({relations: ["user"]});
-     posts.forEach(post => delete post.user.password);
-     return posts;   
+     posts.forEach(post => {
+      delete post.user.password;
+     });
+     return {
+      error: false,
+      posts
+     };   
   }
 
   async findOneById(id: string): Promise<Post | undefined> {

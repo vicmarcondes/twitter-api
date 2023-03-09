@@ -1,16 +1,18 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { UsersModule } from 'src/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { Like } from 'src/likes/entities/like.entity';
+import { LikesModule } from 'src/likes/likes.module';
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forFeature([Post, User, Like])],
   controllers: [PostsController],
-  providers: [PostsService, UsersService]
+  providers: [PostsService],
+  exports: [PostsService],
+  imports: [forwardRef(() => LikesModule), UsersModule, TypeOrmModule.forFeature([Post, User, Like])],
+
 })
 export class PostsModule {}

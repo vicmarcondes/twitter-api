@@ -44,12 +44,20 @@ export class UsersService {
   async login(userPayload: any) {
     let user = await this.findOneByUsername(userPayload.username);
 
-    if(!user) throw new HttpException("Login error 1", HttpStatus.BAD_REQUEST);
-
+    if(!user) {
+      return {
+        message: "Username or password doesn't exists.",
+        error: true
+      }
+    } 
+    
     const isMatch = await bcrypt.compare(userPayload.password, user.password);    
 
     if(!isMatch) {
-      throw new HttpException("Login error", HttpStatus.BAD_REQUEST);
+      return {
+        message: "Username or password doesn't exists.",
+        error: true
+      }
     } else {
       const payload = { username: user.username, id: user.id, fullname: user.fullname };
       

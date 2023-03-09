@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from 'src/posts/entities/post.entity';
 import { PostsService } from 'src/posts/posts.service';
@@ -15,11 +15,11 @@ export class LikesService {
     @InjectRepository(Like)
     private likeRepository: Repository<Like>,
     private userService: UsersService,
+    @Inject(forwardRef(() => PostsService))
     private postService: PostsService
   ) {}
   async create(createLikeDto: CreateLikeDto) {
     const {post_id, user_id} = createLikeDto;
-    // let isLiked = await this.isLiked(user_id, post_id);
     const user: User =  await this.userService.findOneById(user_id);
     const post: Post =  await this.postService.findOneById(post_id);
     
@@ -35,7 +35,6 @@ export class LikesService {
   async isLiked(user_id, post_id) {
     const user: User =  await this.userService.findOneById(user_id);
     const post: Post =  await this.postService.findOneById(post_id);
-
 
     return await this.likeRepository.findOne({where: {user, post}});   
 
