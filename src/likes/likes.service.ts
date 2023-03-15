@@ -23,20 +23,26 @@ export class LikesService {
     const user: User =  await this.userService.findOneById(user_id);
     const post: Post =  await this.postService.findOneById(post_id);
     
-    let like = {
-      is_liked: createLikeDto.like,
+    let like: any = {
+      is_liked: createLikeDto.is_liked,
       user,
       post
     }
     
-    return await this.likeRepository.save(like);
+    let response = await this.likeRepository.findOne({where: {user, post}});
+    if(response) {
+      like.id = response.id;
+    }
+
+    await this.likeRepository.save(like); 
+    return {error: false}
   }
 
   async isLiked(user_id, post_id) {
     const user: User =  await this.userService.findOneById(user_id);
     const post: Post =  await this.postService.findOneById(post_id);
 
-    return await this.likeRepository.findOne({where: {user, post}});   
-
+    let response = await this.likeRepository.findOne({where: {user, post}});   
+    return response ? response.is_liked : false;
   }
 }

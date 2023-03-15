@@ -46,15 +46,19 @@ export class PostsService {
 
   }
 
-  async findAll() {
-     let posts: any = await this.postRepository.find({relations: ["user"]});
-     posts.forEach(post => {
+  async findAll(user_id: string) {
+    let posts: any = await this.postRepository.find({relations: ["user"]});
+    for (const post of posts) {
+      let isLiked = await this.likeService.isLiked(user_id, post.id);
+      post.liked = isLiked;
+
       delete post.user.password;
-     });
-     return {
+    }
+
+    return {
       error: false,
       posts
-     };   
+    };   
   }
 
   async findOneById(id: string): Promise<Post | undefined> {
