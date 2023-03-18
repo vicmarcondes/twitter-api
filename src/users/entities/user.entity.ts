@@ -16,6 +16,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
   @OneToMany(type => Post, post => post.user)
   posts: Post[]
 

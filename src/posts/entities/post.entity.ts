@@ -10,6 +10,9 @@ export class Post {
   @Column()
   text: string;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
   @ManyToOne(type => User, user => user.posts)
   user: User;
 

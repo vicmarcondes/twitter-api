@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Get, Controller, Post, Param } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersService } from "./users.service";
 
@@ -17,5 +17,9 @@ export class UsersController {
     return await this.usersService.login(userPayload);
   }
 
+  @Get(":username")
+  async profile(@Param('username') username: string) {
+    return await this.usersService.getUserData(username);
+  }
 
 }

@@ -9,7 +9,7 @@ import { UsersModule } from 'src/users/users.module';
 import { PostsModule } from 'src/posts/posts.module';
 
 @Module({
-  imports: [forwardRef(() => PostsModule), UsersModule, TypeOrmModule.forFeature([Like, User, Post])],
+  imports: [forwardRef(() => PostsModule), forwardRef(() => UsersModule), TypeOrmModule.forFeature([Like, User, Post])],
   controllers: [LikesController],
   providers: [LikesService],
   exports: [LikesService]

@@ -12,7 +12,7 @@ import { LikesModule } from 'src/likes/likes.module';
   controllers: [PostsController],
   providers: [PostsService],
   exports: [PostsService],
-  imports: [forwardRef(() => LikesModule), UsersModule, TypeOrmModule.forFeature([Post, User, Like])],
+  imports: [forwardRef(() => LikesModule), forwardRef(() => UsersModule), TypeOrmModule.forFeature([Post, User, Like])],
 
 })
 export class PostsModule {}

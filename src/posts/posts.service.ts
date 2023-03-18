@@ -16,11 +16,14 @@ export class PostsService {
     private postRepository: Repository<Post>,
     @Inject(forwardRef(() => LikesService))
     private likeService: LikesService,
+    @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
   ) {}
 
   async create(createPostDto: CreatePostDto) {
     let user: User = await this.userService.findOneByUsername(createPostDto.username);
+
+    createPostDto.createdAt = new Date();
 
     if(!user) {
       return {
@@ -47,7 +50,7 @@ export class PostsService {
   }
 
   async findAll(user_id: string) {
-    let posts: any = await this.postRepository.find({relations: ["user"]});
+    let posts: any = await this.postRepository.find({relations: ["user"], order: {createdAt: "DESC"}});
     for (const post of posts) {
       let isLiked = await this.likeService.isLiked(user_id, post.id);
       post.liked = isLiked;
@@ -63,5 +66,21 @@ export class PostsService {
 
   async findOneById(id: string): Promise<Post | undefined> {
     return this.postRepository.findOne({where: {id}});
+  }
+
+  async findAllFromUser(user_id: string) {
+    let user: any = await this.userService.findOneById(user_id);
+    let posts: any = await this.postRepository.find({relations: ["user"], where: {user}});
+    for (const post of posts) {
+      let isLiked = await this.likeService.isLiked(user_id, post.id);
+      post.liked = isLiked;
+
+      delete post.user.password;
+    }
+
+    return {
+      error: false,
+      posts
+    };   
   }
 }

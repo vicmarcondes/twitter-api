@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
 import * as bcrypt from 'bcrypt';
+import { PostsService } from "src/posts/posts.service";
 let jwt = require('jsonwebtoken');
 
 const saltRounds = 9;
@@ -13,6 +14,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @Inject(forwardRef(() => PostsService))
+    private postService: PostsService,
   ) {}
   async create(createUserDto: CreateUserDto) {
     let userExists = await this.findOneByUsername(createUserDto.username);
@@ -25,7 +28,8 @@ export class UsersService {
     }
 
     createUserDto.password = await bcrypt.hash(createUserDto.password, saltRounds);
-
+    createUserDto.createdAt = new Date();
+    
     let response = await this.userRepository.save(createUserDto);
 
     if(response.id) {
@@ -75,5 +79,28 @@ export class UsersService {
 
   async findOneById(id: string): Promise<User | undefined> {
     return this.userRepository.findOne({where: {id}});
+  }
+
+  async getUserData(username: string) {
+    let response: any = await this.userRepository.findOne({where: {username}, relations: ['likes']});
+    
+    if(response) {
+      delete response.password;
+      let postsFromUser: any = await this.postService.findAllFromUser(response.id);
+      response.posts = postsFromUser.posts;
+
+      return {
+        user: response,
+        error: false
+      }
+    } else {
+      return {
+        error: true,
+        message: "User doesn't exist."
+      }
+    }
+  
+
+  
   }
 }
